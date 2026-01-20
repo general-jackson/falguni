@@ -43,7 +43,6 @@
             z-index: 2;
         }
 
-        /* All Photos Grid - No Scrolling */
         .photo-stack {
             display: flex;
             flex-direction: column;
@@ -61,29 +60,23 @@
             border-radius: 4px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             text-align: center;
-            /* Slight rotation for the scrap-book look */
         }
-        .memory-card:nth-child(1) { transform: rotate(-2deg); }
-        .memory-card:nth-child(2) { transform: rotate(2deg); }
-        .memory-card:nth-child(3) { transform: rotate(-1deg); }
 
         .memory-card img {
             width: 100%;
             height: auto;
-            max-height: 300px;
+            max-height: 350px;
             object-fit: cover;
             border-radius: 2px;
-            border: 1px solid #eee;
         }
 
         .memory-card p {
             font-family: 'Dancing Script', cursive;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             margin-top: 10px;
             color: var(--deep-red);
         }
 
-        /* Buttons Area */
         .proposal-container {
             display: flex;
             justify-content: center;
@@ -91,7 +84,7 @@
             gap: 20px;
             width: 100%;
             min-height: 120px;
-            padding-bottom: 50px;
+            padding-bottom: 80px;
         }
 
         .btn {
@@ -119,19 +112,23 @@
             color: var(--deep-red);
         }
 
+        /* Fixed Audio Button */
         .audio-btn {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            padding: 10px 15px;
+            border-radius: 30px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--deep-red);
         }
 
         .heart-float {
@@ -179,13 +176,16 @@
 
     <div id="success-message">
         <h2>Yay! See you on Feb 14th! ❤️</h2>
-        <p style="font-size: 1.5rem;">I love you, Falguni! 🌻</p>
+        <p style="font-size: 1.5rem; font-family: 'Dancing Script';">I love you, Falguni! 🌻</p>
     </div>
 
     <audio id="bg-music" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
-    <div class="audio-btn" onclick="toggleMusic()">🎵</div>
+    
+    <div class="audio-btn" id="musicToggle">
+        <span id="musicStatus">Play Music</span> 🎵
+    </div>
 
     <script>
         const yesBtn = document.getElementById('yes-btn');
@@ -193,8 +193,10 @@
         const mainUI = document.getElementById('main-ui');
         const successUI = document.getElementById('success-message');
         const music = document.getElementById('bg-music');
+        const musicToggle = document.getElementById('musicToggle');
+        const musicStatus = document.getElementById('musicStatus');
 
-        // NO BUTTON RUNAWAY
+        // IMPROVED RUNAWAY BUTTON
         const moveNo = (e) => {
             if(e) e.preventDefault();
             noBtn.style.position = 'fixed';
@@ -205,13 +207,26 @@
         };
 
         noBtn.addEventListener('mouseover', moveNo);
-        noBtn.addEventListener('touchstart', moveNo);
-        noBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = "about:blank";
-        });
+        noBtn.addEventListener('touchstart', moveNo, {passive: false});
 
-        // YES BUTTON
+        // IMPROVED MUSIC LOGIC
+        function toggleMusic() {
+            if (music.paused) {
+                music.play().then(() => {
+                    musicStatus.innerText = "Pause Music";
+                }).catch(err => {
+                    console.log("Playback failed: ", err);
+                    alert("Please interact with the page first to play music!");
+                });
+            } else {
+                music.pause();
+                musicStatus.innerText = "Play Music";
+            }
+        }
+
+        musicToggle.addEventListener('click', toggleMusic);
+
+        // SUCCESS SCRIPT
         yesBtn.addEventListener('click', () => {
             confetti({
                 particleCount: 150,
@@ -222,14 +237,12 @@
             mainUI.style.display = 'none';
             successUI.style.display = 'block';
             window.scrollTo(0, 0);
+            
+            // Try to start music on 'Yes' if not playing
+            if(music.paused) toggleMusic();
         });
 
-        // MUSIC
-        function toggleMusic() {
-            music.paused ? music.play() : music.pause();
-        }
-
-        // Floating Hearts Logic
+        // Floating Hearts
         setInterval(() => {
             const heart = document.createElement('div');
             heart.className = 'heart-float';
@@ -240,7 +253,7 @@
             heart.style.animationDuration = (Math.random() * 3 + 5) + 's';
             document.body.appendChild(heart);
             setTimeout(() => heart.remove(), 8000);
-        }, 600);
+        }, 800);
     </script>
 </body>
 </html>
